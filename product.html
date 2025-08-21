@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>3D Shoe Viewer</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <script src="products.js"></script>
+  <style>
+    body {
+      margin: 0;
+      background: #0f0f1f;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      color: white;
+    }
+    .viewer-wrapper {
+      position: relative;
+      width: 90vw;
+      max-width: 600px;
+      margin: 2rem 0 1rem 0;
+    }
+    model-viewer {
+      width: 100%;
+      height: 600px;
+      background: #1a1a2a;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      display: block;
+    }
+    #show-ar-btn {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      padding: 0.5rem 1rem;
+      background: linear-gradient(90deg, #7ecfff, #4a90e2);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      z-index: 10;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #show-ar-btn:hover {
+      background: linear-gradient(90deg, #4a90e2, #7ecfff);
+    }
+    #qr-container {
+      display: none;
+      position: fixed;
+      top: 70px;
+      left: 1rem;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      z-index: 999;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+    #qr-container p {
+      color: #000;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    .back-btn {
+      margin-top: 1rem;
+      background: #4a90e2;
+      color: white;
+      padding: 0.6rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .error {
+      font-size: 1.5rem;
+      color: #ff5555;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="viewer-wrapper">
+    <button id="show-ar-btn">Show in AR(QR)</button>
+    <button id="virtual-tryon-btn" style="position:absolute;top:1rem;right:1rem;padding:0.5rem 1rem;background:linear-gradient(90deg,#a07cff,#7e57c2);color:#fff;border:none;border-radius:8px;font-weight:bold;z-index:10;cursor:pointer;transition:background 0.2s;">Virtual Try On(phone only)</button>
+    <model-viewer id="main-viewer"
+      src=""
+      ios-src=""
+      alt="3D Shoe"
+      auto-rotate
+      camera-controls
+      ar
+      ar-modes="webxr scene-viewer quick-look"
+      shadow-intensity="1"
+      exposure="1">
+    </model-viewer>
+  </div>
+  <div id="qr-container">
+    <p>Scan to view in AR:</p>
+    <img id="qr-image" src="" alt="QR Code" width="180">
+  </div>
+  <div id="virtual-tryon-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:2000;align-items:center;justify-content:center;">
+    <div style="background:#1a1a2a;padding:2rem 3rem;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);text-align:center;max-width:90vw;position:relative;">
+      <h2 style="color:#fff;">Virtual Try On</h2>
+      <div id="tryon-container" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        <video id="tryon-video" autoplay playsinline style="width:100%;max-width:400px;border-radius:12px;"></video>
+        <canvas id="tryon-canvas" style="position:absolute;top:0;left:0;"></canvas>
+      </div>
+      <button id="close-tryon-modal" style="margin-top:1.5rem;padding:0.5rem 1.5rem;background:#7e57c2;color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer;">Close</button>
+    </div>
+  </div>
+  <button class="back-btn" onclick="history.back()">⬅ Back</button>
+
+  <!-- TensorFlow.js and MediaPipe Pose -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection"></script>
+
+  <script>
+    const baseUrl = "https://animeshtripathii.github.io/shoe-ar/";
+    const getParam = (name) => new URLSearchParams(window.location.search).get(name);
+    const id = getParam("id");
+    const product = window.products?.find(p => p.id === id);
+    const viewer = document.getElementById("main-viewer");
+
+    if (product) {
+      const modelUrl = `${baseUrl}models/${product.id}.glb`;
+      const usdzUrl = `${baseUrl}models/${product.id}.usdz`;
+      viewer.src = modelUrl;
+      viewer.setAttribute('ios-src', usdzUrl);
+      viewer.alt = product.title || '3D Shoe';
+    } else {
+      viewer.style.display = "none";
+      document.querySelector('.viewer-wrapper').insertAdjacentHTML('beforeend', `<div class="error">Product not found</div>`);
+    }
+
+    const showARBtn = document.getElementById("show-ar-btn");
+    const qrContainer = document.getElementById("qr-container");
+    const qrImage = document.getElementById("qr-image");
+
+    showARBtn.addEventListener("click", () => {
+      if (!product) return;
+
+      const modelUrl = `${baseUrl}models/${product.id}.glb`;
+      const arHtmlUrl = `${baseUrl}ar.html?model=${encodeURIComponent(modelUrl)}`;
+
+      // Show QR code
+      const qrAPI = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(arHtmlUrl)}&size=180x180`;
+      qrImage.src = qrAPI;
+      qrContainer.style.display = "block";
+    });
+
+    // Virtual Try On button logic
+    const tryOnBtn = document.getElementById("virtual-tryon-btn");
+    const tryOnModal = document.getElementById("virtual-tryon-modal");
+    const closeTryOnModal = document.getElementById("close-tryon-modal");
+    const tryonVideo = document.getElementById("tryon-video");
+    const tryonCanvas = document.getElementById("tryon-canvas");
+    let tryonCtx = tryonCanvas.getContext('2d');
+    let detector;
+    let animationId;
+    let stream;
+
+    async function startVirtualTryOn() {
+      // Start camera
+      try {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } } });
+        } catch (e) {
+          // fallback to any camera
+          stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        }
+        tryonVideo.srcObject = stream;
+        tryonVideo.onloadedmetadata = () => {
+          tryonVideo.play();
+          tryonCanvas.width = tryonVideo.videoWidth;
+          tryonCanvas.height = tryonVideo.videoHeight;
+          detectFeet();
+        };
+      } catch (e) {
+        alert('Could not access camera.');
+        return;
+      }
+      // Load pose detector
+      detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet);
+    }
+
+    async function detectFeet() {
+      if (!detector) return;
+      const poses = await detector.estimatePoses(tryonVideo);
+      tryonCtx.clearRect(0, 0, tryonCanvas.width, tryonCanvas.height);
+      if (poses.length > 0) {
+        const keypoints = poses[0].keypoints;
+        // Find left and right ankle
+        const leftAnkle = keypoints.find(k => k.name === 'left_ankle');
+        const rightAnkle = keypoints.find(k => k.name === 'right_ankle');
+        // Draw a shoe image at the ankle positions (replace with your own shoe image)
+        let shoeImg = new window.Image();
+        shoeImg.src = 'img/1.png'; // Use your shoe image
+        shoeImg.onload = () => {
+          if (leftAnkle && leftAnkle.score > 0.5) {
+            tryonCtx.drawImage(shoeImg, leftAnkle.x - 40, leftAnkle.y - 20, 80, 40);
+          }
+          if (rightAnkle && rightAnkle.score > 0.5) {
+            tryonCtx.drawImage(shoeImg, rightAnkle.x - 40, rightAnkle.y - 20, 80, 40);
+          }
+        };
+      }
+      animationId = requestAnimationFrame(detectFeet);
+    }
+
+    tryOnBtn.addEventListener("click", () => {
+      tryOnModal.style.display = "flex";
+      startVirtualTryOn();
+    });
+    closeTryOnModal.addEventListener("click", () => {
+      tryOnModal.style.display = "none";
+      // Stop camera
+      if (tryonVideo.srcObject) {
+        tryonVideo.srcObject.getTracks().forEach(track => track.stop());
+      }
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+      tryonCtx.clearRect(0, 0, tryonCanvas.width, tryonCanvas.height);
+    });
+  </script>
+</body>
+</html>

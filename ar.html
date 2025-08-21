@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Launching AR Experience...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      background: #0f0f1f;
+      color: white;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <p>Launching AR experience...</p>
+    <p>If nothing happens, <a id="ar-link" href="#">tap here</a>.</p>
+  </div>
+
+  <script>
+    const getParam = name => new URLSearchParams(window.location.search).get(name);
+    const glbUrl = getParam("model");
+
+    if (!glbUrl) {
+      document.body.innerHTML = "<h2>❌ Model URL is missing.</h2>";
+    } else {
+      const usdzUrl = glbUrl.replace(".glb", ".usdz");
+
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const isAndroid = /Android/i.test(navigator.userAgent);
+
+      let arLink = "";
+
+      if (isIOS) {
+        arLink = usdzUrl;
+      } else if (isAndroid) {
+        arLink = `intent://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(glbUrl)}&mode=ar_preferred#Intent;scheme=https;package=com.google.ar.core;action=android.intent.action.VIEW;S.browser_fallback_url=${encodeURIComponent(glbUrl)};end;`;
+      } else {
+        arLink = glbUrl;
+      }
+
+      setTimeout(() => {
+        window.location.href = arLink;
+      }, 1000);
+
+      document.getElementById("ar-link").href = arLink;
+    }
+  </script>
+</body>
+</html>

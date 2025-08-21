@@ -1,0 +1,218 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shoes Website</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <header>
+        <figure class="logo">
+            <img src="./img/Realityloops.png" alt="Logo">
+        </figure>
+        <nav>
+            <ul>
+                <li>HOME</li>
+                <li>INFO</li>
+                <li>LOGIN</li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="carousel">
+        <div class="list">
+            <div class="item">
+                <figure>
+                    <img src="img/3.png">
+                </figure>
+                <div class="content">
+                    <p class="category">Sport Shoes</p>
+                    <h2>NIKE D.01</h2>
+                    <p class="description">
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsum facere ipsa blanditiis quidem dignissimos enim quam corrupti praesentium ipsam assumenda?
+                    </p>
+                    <div class="more">
+                        <button>Add To Cart</button>
+                        <button><i class="fa-solid fa-play"></i> See More</button>
+                    </div>
+                </div>
+            </div>
+            <div class="item">
+                <figure>
+                    <img src="img/2.png">
+                </figure>
+                <div class="content">
+                    <p class="category">Sport Shoes</p>
+                    <h2>NIKE D.02</h2>
+                    <p class="description">
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsum facere ipsa blanditiis quidem dignissimos enim quam corrupti praesentium ipsam assumenda?
+                    </p>
+                    <div class="more">
+                        <button>Add To Cart</button>
+                        <button><i class="fa-solid fa-play"></i> See More</button>
+                    </div>
+                </div>
+            </div>
+            <div class="item">
+                <figure>
+                    <img src="img/1.png">
+                </figure>
+                <div class="content">
+                    <p class="category">Sport Shoes</p>
+                    <h2>NIKE D.03</h2>
+                    <p class="description">
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsum facere ipsa blanditiis quidem dignissimos enim quam corrupti praesentium ipsam assumenda?
+                    </p>
+                    <div class="more">
+                        <button>Add To Cart</button>
+                        <button><i class="fa-solid fa-play"></i> See More</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="arrows">
+            <button id="prev"><i class="fa-solid fa-chevron-left"></i></button>
+            <button id="next"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <div class="indicators">
+            <div class="number">02</div>
+            <ul>
+                <li class="active"></li>
+                <li></li>
+                <li></li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="footwear">
+        <div class="container footwear-flex">
+            <div class="filter-panel">
+                <h3>Filters</h3>
+                <div class="filter-group">
+                    <h4>Price Range</h4>
+                    <input type="range" id="priceRange" min="0" max="250" value="250">
+                    <p>Up to $<span id="priceValue">250</span></p>
+                </div>
+                <div class="filter-group">
+                    <h4>Size</h4>
+                    <label><input type="checkbox" name="size" value="6"> 6</label>
+                    <label><input type="checkbox" name="size" value="7"> 7</label>
+                    <label><input type="checkbox" name="size" value="8"> 8</label>
+                    <label><input type="checkbox" name="size" value="9"> 9</label>
+                    <label><input type="checkbox" name="size" value="10"> 10</label>
+                    <label><input type="checkbox" name="size" value="11"> 11</label>
+                </div>
+                <div class="filter-group">
+                    <h4>Category</h4>
+                    <label><input type="checkbox" name="category" value="sport"> Sport</label>
+                    <label><input type="checkbox" name="category" value="casual"> Casual</label>
+                    <label><input type="checkbox" name="category" value="running"> Running</label>
+                    <label><input type="checkbox" name="category" value="training"> Training</label>
+                </div>
+            </div>
+            <div class="footwear-grid">
+                <!-- Footwear items will be dynamically added here -->
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-section">
+                <h4>Contact Us</h4>
+                <p>Email: suryanmandal393@gmail.com</p>
+                <p>Phone: +91 7602548747</p>
+                <p>Address: LPU, Punjab , India</p>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/suryanmandal/"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Nike. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+    <script src="products.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const grid = document.querySelector('.footwear-grid');
+        const priceRange = document.getElementById('priceRange');
+        const priceValue = document.getElementById('priceValue');
+        const sizeFilters = document.querySelectorAll('input[name="size"]');
+        const categoryFilters = document.querySelectorAll('input[name="category"]');
+
+        function renderGrid(productsToRender) {
+          grid.innerHTML = '';
+          productsToRender.forEach(product => {
+            grid.innerHTML += `
+              <div class="footwear-item" data-id="${product.id}" data-price="${product.price}" data-size="${product.size}" data-category="${product.category.toLowerCase()}" style="cursor:pointer;">
+                <img src="${product.image}" alt="${product.title}">
+                <h4>${product.title}</h4>
+                <p>$${product.price}</p>
+                <p>Size: ${product.size}</p>
+                <p>Category: ${product.category}</p>
+              </div>
+            `;
+          });
+          // Attach click listeners after rendering
+          grid.querySelectorAll('.footwear-item').forEach(item => {
+            item.addEventListener('click', function() {
+              const id = item.getAttribute('data-id');
+              window.location.href = `product.html?id=${id}`;
+            });
+          });
+        }
+
+        function applyFilters() {
+          const maxPrice = parseInt(priceRange.value);
+          const selectedSizes = Array.from(sizeFilters)
+            .filter(filter => filter.checked)
+            .map(filter => filter.value);
+          const selectedCategories = Array.from(categoryFilters)
+            .filter(filter => filter.checked)
+            .map(filter => filter.value);
+          const filtered = window.products.filter(product => {
+            const priceMatch = product.price <= maxPrice;
+            const sizeMatch = selectedSizes.length === 0 || selectedSizes.includes(String(product.size));
+            const categoryMatch = selectedCategories.length === 0 || selectedCategories.includes(product.category.toLowerCase());
+            return priceMatch && sizeMatch && categoryMatch;
+          });
+          renderGrid(filtered);
+        }
+
+        if (window.products && grid) {
+          renderGrid(window.products);
+          priceRange.oninput = () => {
+            priceValue.textContent = priceRange.value;
+            applyFilters();
+          };
+          sizeFilters.forEach(filter => {
+            filter.onchange = applyFilters;
+          });
+          categoryFilters.forEach(filter => {
+            filter.onchange = applyFilters;
+          });
+        }
+      });
+    </script>
+</body>
+</html>
